@@ -321,3 +321,141 @@ abline(0,1,col="blue",lty=2,lwd=2)
 ```
 
 ## Criando modelos melhores
+
+Como nem todas as variáveis são úteis no modelo de regressão, para criar modelos melhores escolhemos as variáveis com maior relevância de cada período.
+
+``` {r}
+# Novo modelo para o primeiro período
+
+require(dplyr)
+
+graduados.primeiro.per.novo  <- graduados.primeiro.per  %>% 
+  select(-Programação.I,-Laboratório.de.Programação.I,-Leitura.e.Produção.de.Textos)
+
+correlationMatrix.nova <- cor(graduados.primeiro.per.novo)
+print(correlationMatrix.nova)
+```
+
+``` {r}
+# Visualização da matriz de correlação
+
+library(corrplot)
+
+corrplot(correlationMatrix.nova,  method="color",   
+         type="lower", order="hclust", 
+         addCoef.col = "black", # Add coefficient of correlation
+         tl.col="black", tl.srt=45, #Text label color and rotation
+         diag=FALSE )
+```
+
+```{r}
+# Visualização da matriz de correlação
+library("GGally")
+ggpairs(graduados.primeiro.per.novo)
+
+```
+
+Abaixo definimos a correlação linear múltipla do novo modelo
+
+```{r}
+lm1.novo <- lm(cra ~ Álgebra.Vetorial.e.Geometria.Analítica + Cálculo.Diferencial.e.Integral.I + Introdução.à.Computação, data= graduados.primeiro.per)
+
+lm1.novo
+
+summary(lm1.novo)
+```
+
+### Gráficos de Resíduo 
+
+``` {r}
+
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
+plot(lm1.novo)
+
+```
+
+### Gráfico das Predições
+
+```{r}
+library(caret)
+
+predicoes.novo = predict.lm(lm1.novo,graduados.primeiro.per.novo)
+cra.novo <- graduados.primeiro.per.novo$cra
+
+residuos.novo = cra.novo - predicoes.novo
+
+axisRange = extendrange(c(cra.novo,predicoes.novo)) #deixando as variáveis na mesma escala
+
+plot(cra3,predicoes3)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+```
+
+## Modelo novo do segundo período
+
+``` {r}
+# Novo modelo para o segundo período
+
+require(dplyr)
+
+graduados.segundo.per.novo  <- graduados.segundo.per  %>% 
+  select(-Cálculo.Diferencial.e.Integral.II,-Laboratório.de.Programação.II,-Fundamentos.de.Física.Clássica)
+
+correlationMatrix2.nova <- cor(graduados.segundo.per.novo)
+print(correlationMatrix2.nova)
+```
+
+``` {r}
+# Visualização da matriz de correlação
+
+library(corrplot)
+
+corrplot(correlationMatrix2.nova,  method="color",   
+         type="lower", order="hclust", 
+         addCoef.col = "black", # Add coefficient of correlation
+         tl.col="black", tl.srt=45, #Text label color and rotation
+         diag=FALSE )
+```
+
+```{r}
+# Visualização da matriz de correlação
+library("GGally")
+ggpairs(graduados.segundo.per.novo)
+
+```
+
+Abaixo definimos a correlação linear múltipla do novo modelo
+
+```{r}
+lm2.novo <- lm(cra ~ Matemática.Discreta + Programação.II + Teoria.dos.Grafos, data= graduados.segundo.per)
+
+lm2.novo
+
+summary(lm2.novo)
+```
+
+### Gráficos de Resíduo 
+
+``` {r}
+
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
+plot(lm2.novo)
+
+```
+
+### Gráfico das Predições
+
+```{r}
+library(caret)
+
+predicoes2.novo = predict.lm(lm2.novo,graduados.segundo.per.novo)
+cra2.novo <- graduados.segundo.per.novo$cra
+
+residuos2.novo = cra2.novo - predicoes2.novo
+
+axisRange = extendrange(c(cra2.novo,predicoes2.novo)) #deixando as variáveis na mesma escala
+
+plot(cra2,predicoes2)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+```
