@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Laboratório 2
+### Laboratório 2
 
 É sabido que os períodos iniciais do curso de computação estão entre os mais difíceis de todo o curso. Entre os fatores que podem explicar isso, estão disciplinas que são consideradas difíceis para alunos recém saídos do ensino médio, como, por exemplo, Cálculo I, Álgebra Vetorial, P1 e LP1.
 
@@ -16,14 +16,18 @@ A porcentagem de evasão nos primeiros períodos também é bastante alta em rel
 O desempenho dos alunos nos dois primeiros períodos consegue explicar, em algum grau, seus desempenhos no curso como um todo?
 
 Vamos tentar responder essa pergunta usando regressão linear. Vamos fazer isso quebrando a pergunta anterior nas seguintes perguntas:
-  
-    *Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y? Em que grau?
-    *Todas as variáveis são úteis para o modelo de regressão?
-    *Se a resposta para a pergunta anterior foi não, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE).
-    *Analise os plots de resíduos de cada variável e veja se algum (um ou mais) deles indica não aleatoriedade dos erros.
-    *Que período consegue explicar melhor o desempenho final (primeiro ou segundo)?
-    *Use o melhor modelo encontrado para predizer o seu próprio desempenho e compare a predição com o seu CRA atual. Comente o resultado.
 
+-Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y? Em que grau?
+
+-Todas as variáveis são úteis para o modelo de regressão?
+
+-Se a resposta para a pergunta anterior foi não, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE).
+
+-Analise os plots de resíduos de cada variável e veja se algum (um ou mais) deles indica não aleatoriedade dos erros.
+
+-Que período consegue explicar melhor o desempenho final (primeiro ou segundo)?
+
+-Use o melhor modelo encontrado para predizer o seu próprio desempenho e compare a predição com o seu CRA atual. Comente o resultado.
 
 ```{r}
 # Importando dados
@@ -43,6 +47,7 @@ graduados <- graduados %>%
 # Limpando dados
 
 graduados.clean <- graduados %>% filter(!is.na(media))
+
 summary(graduados.clean)
 
 #Agora, vamos calcular o CRA dos alunos:
@@ -69,18 +74,16 @@ graduados.model.input <- graduados.clean %>%
 
 head(graduados.model.input)
 
-# Criar tabela com disciplinas do primeiro período
+# Criar tabelas com disciplinas do primeiro período
 
 Disciplinas <- c("matricula", "Álgebra.Vetorial.e.Geometria.Analítica","Cálculo.Diferencial.e.Integral.I","Introdução.à.Computação","Laboratório.de.Programação.I","Leitura.e.Produção.de.Textos","Programação.I", "cra")
 graduados.primeiro.per <- graduados.model.input[Disciplinas]
 
-# Criar tabela com disciplinas do segundo período
-
+# Criar tabelas com disciplinas do segundo período
 Disciplinas1 <- c("matricula", "Cálculo.Diferencial.e.Integral.II","Matemática.Discreta","Programação.II","Teoria.dos.Grafos","Fundamentos.de.Física.Clássica","Laboratório.de.Programação.II", "cra")
 graduados.segundo.per <- graduados.model.input[Disciplinas1]
 
-# Criar tabela com disciplinas dos dois períodos
-
+# Criar tabelas com disciplinas dos dois períodos
 Disciplinas2<- c("matricula", "Cálculo.Diferencial.e.Integral.II","Matemática.Discreta","Programação.II","Teoria.dos.Grafos","Fundamentos.de.Física.Clássica","Laboratório.de.Programação.II", "Álgebra.Vetorial.e.Geometria.Analítica","Cálculo.Diferencial.e.Integral.I","Introdução.à.Computação","Laboratório.de.Programação.I","Leitura.e.Produção.de.Textos","Programação.I", "cra")
 graduados.ambos.per <- graduados.model.input[Disciplinas2]
 
@@ -96,13 +99,14 @@ graduados.primeiro.per  <- graduados.primeiro.per  %>% select(-matricula)
 graduados.segundo.per  <- graduados.segundo.per  %>% select(-matricula)
 graduados.ambos.per  <- graduados.ambos.per  %>% select(-matricula)
 
+
 ```
 
 # Examinando o histograma das variáveis
 
 Abaixo temos os histograma das notas das disciplinas do primeiro e segundo período
 
-```{r, echo=FALSE}
+```{r}
 require(reshape2)
 require(ggplot2)
 
@@ -118,7 +122,202 @@ ggplot(df1,aes(x = value)) +
 
 ```
 
-# Correlação
+## Correlação do primeiro período
 
-Inicialmente iremos calcular a correlação entre as notas das disciplinas do primeiro período e o cra 
+Inicialmente iremos criar a matriz de correlação das disciplinas do primeiro período com o cra
 
+``` {r}
+correlationMatrix <- cor(graduados.primeiro.per)
+print(correlationMatrix)
+
+library(corrplot)
+corrplot(correlationMatrix, method="color",   
+         type="lower", order="hclust", 
+         addCoef.col = "black",
+         tl.col="black", tl.srt=45,
+         diag=FALSE)
+
+```
+
+``` {r}
+library("GGally")
+ggpairs(graduados.primeiro.per)
+
+```
+
+Podemos observar que as disciplinas com maior correlação com o cra são Introdução à Computação, Álgebra Vetorial, Cálculo I e Programação I
+
+``` {r}
+
+# Escrevendo a equação da correlação linear
+
+lm1 <- lm(cra ~ Álgebra.Vetorial.e.Geometria.Analítica + Cálculo.Diferencial.e.Integral.I + Introdução.à.Computação + Laboratório.de.Programação.I + Leitura.e.Produção.de.Textos + Programação.I, data= graduados.primeiro.per)
+
+lm1
+
+summary(lm1)
+
+```
+
+Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis Álgebra Linear, Introdução à Computação e Cálculo Diferencial e Integral I. Portanto é seguro afirmar que essas são as variáveis com maior relevância no modelo.
+
+# Gráficos de Resíduo 
+
+``` {r}
+
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
+plot(lm1)
+
+```
+
+# Gráfico das Predições
+
+```{r}
+library(caret)
+
+predicoes = predict.lm(lm1,graduados.primeiro.per)
+cra <- graduados.primeiro.per$cra
+
+residuos = cra - predicoes
+
+axisRange = extendrange(c(cra,predicoes)) #deixando as variáveis na mesma escala
+
+plot(cra,predicoes)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+```
+
+## Correlação do segundo período
+
+Inicialmente iremos criar a matriz de correlação das disciplinas do segundo período com o cra
+
+``` {r}
+correlationMatrix2 <- cor(graduados.segundo.per)
+print(correlationMatrix2)
+
+library(corrplot)
+corrplot(correlationMatrix2, method="color",   
+         type="lower", order="hclust", 
+         addCoef.col = "black",
+         tl.col="black", tl.srt=45,
+         diag=FALSE)
+
+```
+
+``` {r}
+library("GGally")
+ggpairs(graduados.segundo.per)
+
+```
+
+Podemos observar que as disciplinas com maior correlação com o cra são Matemática Discreta, Programação II, Teoria dos Grafos e Cálculo II.
+
+``` {r}
+
+# Escrevendo a equação da correlação linear
+
+lm2 <- lm(cra ~ Cálculo.Diferencial.e.Integral.II + Matemática.Discreta + Programação.II + Teoria.dos.Grafos + Fundamentos.de.Física.Clássica + Laboratório.de.Programação.II, data= graduados.segundo.per)
+
+lm2
+
+summary(lm2)
+```
+
+Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis Matemática Discreta, Programação II, Teoria dos Grafos. Portanto é seguro afirmar que essas são as variáveis com maior relevância no modelo.
+
+# Gráficos de Resíduo 
+
+``` {r}
+
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
+plot(lm2)
+
+```
+
+# Gráfico das Predições
+
+```{r}
+library(caret)
+
+predicoes2 = predict.lm(lm2,graduados.segundo.per)
+cra2 <- graduados.segundo.per$cra
+
+residuos2 = cra2 - predicoes2
+
+axisRange = extendrange(c(cra2,predicoes2)) #deixando as variáveis na mesma escala
+
+plot(cra2,predicoes2)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+```
+
+## Modelo com todas as variáveis
+
+Inicialmente iremos criar a matriz de correlação das disciplinas de ambos os períodos com o cra
+
+``` {r}
+correlationMatrix3 <- cor(graduados.ambos.per)
+print(correlationMatrix3)
+
+library(corrplot)
+corrplot(correlationMatrix3, method="color",   
+         type="lower", order="hclust", 
+         addCoef.col = "black",
+         tl.col="black", tl.srt=45,
+         diag=FALSE)
+
+```
+
+``` {r}
+library("GGally")
+ggpairs(graduados.ambos.per)
+
+```
+
+
+``` {r}
+
+# Escrevendo a equação da correlação linear
+
+lm3 <- lm(cra ~ Álgebra.Vetorial.e.Geometria.Analítica +
+            Cálculo.Diferencial.e.Integral.I + Introdução.à.Computação
+          + Laboratório.de.Programação.I + Leitura.e.Produção.de.Textos + 
+            Programação.I + Cálculo.Diferencial.e.Integral.II + Matemática.Discreta
+          + Programação.II + Teoria.dos.Grafos + Fundamentos.de.Física.Clássica
+          + Laboratório.de.Programação.II, data= graduados.ambos.per)
+
+lm3
+
+summary(lm3)
+
+```
+
+Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis de Matemática Discreta e Programação II.
+
+# Gráficos de Resíduo 
+
+``` {r}
+
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
+plot(lm3)
+
+```
+
+# Gráfico das Predições
+
+```{r}
+library(caret)
+
+predicoes3 = predict.lm(lm3,graduados.ambos.per)
+cra3 <- graduados.ambos.per$cra
+
+residuos3 = cra3 - predicoes3
+
+axisRange = extendrange(c(cra3,predicoes3)) #deixando as variáveis na mesma escala
+
+plot(cra3,predicoes3)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+```
+
+## Criando modelos melhores
