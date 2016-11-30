@@ -45,17 +45,17 @@ graduados.model.input <- graduados.clean %>%
 head(graduados.model.input)
 View(graduados.model.input)
 
-# Criar tabelas com disciplinas do primeiro perÌodo
+# Criar tabelas com disciplinas do primeiro per√≠odo
 
-Disciplinas <- c("matricula", "¡lgebra.Vetorial.e.Geometria.AnalÌtica","C·lculo.Diferencial.e.Integral.I","IntroduÁ„o.‡.ComputaÁ„o","LaboratÛrio.de.ProgramaÁ„o.I","Leitura.e.ProduÁ„o.de.Textos","ProgramaÁ„o.I", "cra")
+Disciplinas <- c("matricula", "√Ålgebra.Vetorial.e.Geometria.Anal√≠tica","C√°lculo.Diferencial.e.Integral.I","Introdu√ß√£o.√†.Computa√ß√£o","Laborat√≥rio.de.Programa√ß√£o.I","Leitura.e.Produ√ß√£o.de.Textos","Programa√ß√£o.I", "cra")
 graduados.primeiro.per <- graduados.model.input[Disciplinas]
 
-# Criar tabelas com disciplinas do segundo perÌodo
-Disciplinas1 <- c("matricula", "C·lculo.Diferencial.e.Integral.II","Matem·tica.Discreta","ProgramaÁ„o.II","Teoria.dos.Grafos","Fundamentos.de.FÌsica.Cl·ssica","LaboratÛrio.de.ProgramaÁ„o.II", "cra")
+# Criar tabelas com disciplinas do segundo per√≠odo
+Disciplinas1 <- c("matricula", "C√°lculo.Diferencial.e.Integral.II","Matem√°tica.Discreta","Programa√ß√£o.II","Teoria.dos.Grafos","Fundamentos.de.F√≠sica.Cl√°ssica","Laborat√≥rio.de.Programa√ß√£o.II", "cra")
 graduados.segundo.per <- graduados.model.input[Disciplinas1]
 
-# Criar tabelas com disciplinas dos dois perÌodos
-Disciplinas2<- c("matricula", "C·lculo.Diferencial.e.Integral.II","Matem·tica.Discreta","ProgramaÁ„o.II","Teoria.dos.Grafos","Fundamentos.de.FÌsica.Cl·ssica","LaboratÛrio.de.ProgramaÁ„o.II", "¡lgebra.Vetorial.e.Geometria.AnalÌtica","C·lculo.Diferencial.e.Integral.I","IntroduÁ„o.‡.ComputaÁ„o","LaboratÛrio.de.ProgramaÁ„o.I","Leitura.e.ProduÁ„o.de.Textos","ProgramaÁ„o.I", "cra")
+# Criar tabelas com disciplinas dos dois per√≠odos
+Disciplinas2<- c("matricula", "C√°lculo.Diferencial.e.Integral.II","Matem√°tica.Discreta","Programa√ß√£o.II","Teoria.dos.Grafos","Fundamentos.de.F√≠sica.Cl√°ssica","Laborat√≥rio.de.Programa√ß√£o.II", "√Ålgebra.Vetorial.e.Geometria.Anal√≠tica","C√°lculo.Diferencial.e.Integral.I","Introdu√ß√£o.√†.Computa√ß√£o","Laborat√≥rio.de.Programa√ß√£o.I","Leitura.e.Produ√ß√£o.de.Textos","Programa√ß√£o.I", "cra")
 graduados.ambos.per <- graduados.model.input[Disciplinas2]
 
 #limpando as tabelas
@@ -71,7 +71,7 @@ graduados.primeiro.per  <- graduados.primeiro.per  %>% select(-matricula)
 graduados.segundo.per  <- graduados.segundo.per  %>% select(-matricula)
 graduados.ambos.per  <- graduados.ambos.per  %>% select(-matricula)
 
-# Examinando Histograma das vari·veis
+# Examinando Histograma das vari√°veis
 
 require(reshape2)
 require(ggplot2)
@@ -87,19 +87,19 @@ ggplot(df1,aes(x = value)) +
   geom_histogram()
 
 
-# CorrelaÁ„o
+# Correla√ß√£o
 
 correlationMatrix <- cor(graduados.primeiro.per)
 print(correlationMatrix)
 
-# Analisando graficamente a matriz de correlaÁ„o
+# Analisando graficamente a matriz de correla√ß√£o
 
 library(corrplot)
 corrplot(correlationMatrix, method="number", type="lower", order="hclust")
 
-# CorrelaÁ„o do primeiro perÌodo
+# Correla√ß√£o do primeiro per√≠odo
 
-lm1 <- lm(cra ~ ¡lgebra.Vetorial.e.Geometria.AnalÌtica + C·lculo.Diferencial.e.Integral.I + IntroduÁ„o.‡.ComputaÁ„o + LaboratÛrio.de.ProgramaÁ„o.I + Leitura.e.ProduÁ„o.de.Textos + ProgramaÁ„o.I, data= graduados.primeiro.per)
+lm1 <- lm(cra ~ √Ålgebra.Vetorial.e.Geometria.Anal√≠tica + C√°lculo.Diferencial.e.Integral.I + Introdu√ß√£o.√†.Computa√ß√£o + Laborat√≥rio.de.Programa√ß√£o.I + Leitura.e.Produ√ß√£o.de.Textos + Programa√ß√£o.I, data= graduados.primeiro.per)
 
 lm1
 
@@ -109,17 +109,17 @@ layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm1)
 
 
-# CorrelaÁ„o do segundo perÌodo
+# Correla√ß√£o do segundo per√≠odo
 
 correlationMatrix2 <- cor(graduados.segundo.per)
 print(correlationMatrix2)
 
-# Analisando graficamente a matriz de correlaÁ„o 2
+# Analisando graficamente a matriz de correla√ß√£o 2
 
 library(corrplot)
 corrplot(correlationMatrix2, method="number", type="lower", order="hclust")
 
-lm2 <- lm(cra ~ C·lculo.Diferencial.e.Integral.II + Matem·tica.Discreta + ProgramaÁ„o.II + Teoria.dos.Grafos + Fundamentos.de.FÌsica.Cl·ssica + LaboratÛrio.de.ProgramaÁ„o.II, data= graduados.segundo.per)
+lm2 <- lm(cra ~ C√°lculo.Diferencial.e.Integral.II + Matem√°tica.Discreta + Programa√ß√£o.II + Teoria.dos.Grafos + Fundamentos.de.F√≠sica.Cl√°ssica + Laborat√≥rio.de.Programa√ß√£o.II, data= graduados.segundo.per)
 
 lm2
 
@@ -128,22 +128,22 @@ summary(lm2)
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm2)
 
-# CorrelaÁ„o de ambos perÌodos
+# Correla√ß√£o de ambos per√≠odos
 
 correlationMatrix3 <- cor(graduados.ambos.per)
 print(correlationMatrix3)
 
-# Analisando graficamente a matriz de correlaÁ„o 3
+# Analisando graficamente a matriz de correla√ß√£o 3
 
 library(corrplot)
 corrplot(correlationMatrix3, method="number", type="lower", order="hclust")
 
-lm3 <- lm(cra ~ ¡lgebra.Vetorial.e.Geometria.AnalÌtica +
-            C·lculo.Diferencial.e.Integral.I + IntroduÁ„o.‡.ComputaÁ„o
-          + LaboratÛrio.de.ProgramaÁ„o.I + Leitura.e.ProduÁ„o.de.Textos + 
-            ProgramaÁ„o.I + C·lculo.Diferencial.e.Integral.II + Matem·tica.Discreta
-          + ProgramaÁ„o.II + Teoria.dos.Grafos + Fundamentos.de.FÌsica.Cl·ssica
-          + LaboratÛrio.de.ProgramaÁ„o.II, data= graduados.ambos.per)
+lm3 <- lm(cra ~ √Ålgebra.Vetorial.e.Geometria.Anal√≠tica +
+            C√°lculo.Diferencial.e.Integral.I + Introdu√ß√£o.√†.Computa√ß√£o
+          + Laborat√≥rio.de.Programa√ß√£o.I + Leitura.e.Produ√ß√£o.de.Textos + 
+            Programa√ß√£o.I + C√°lculo.Diferencial.e.Integral.II + Matem√°tica.Discreta
+          + Programa√ß√£o.II + Teoria.dos.Grafos + Fundamentos.de.F√≠sica.Cl√°ssica
+          + Laborat√≥rio.de.Programa√ß√£o.II, data= graduados.ambos.per)
 
 lm3
 
@@ -153,31 +153,35 @@ layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm3)
 
 
-# Um modelo de regress„o m˙ltipla com todas as vari·veis È plausÌvel para explicar a variaÁ„o em y? Em que grau?
+# Um modelo de regress√£o m√∫ltipla com todas as vari√°veis √© plaus√≠vel para explicar a varia√ß√£o em y? Em que grau?
 
-# Observando o modelo com todas as vari·veis vemos que È plausÌvel, 
-# porÈm quando separamos por perÌodo existem mais vari·veis que podem ser destacadas.
+# Observando o modelo com todas as vari√°veis vemos que √© plaus√≠vel, 
+# por√©m quando separamos por per√≠odo existem mais vari√°veis que podem ser destacadas.
 
-# Todas as vari·veis s„o ˙teis para o modelo de regress„o?
+# Todas as vari√°veis s√£o √∫teis para o modelo de regress√£o?
 
-# AtÈ certo ponto, podemos observar vari·veis mais importantes que outras, portanto
+# At√© certo ponto, podemos observar vari√°veis mais importantes que outras, portanto
 # podemos construir um modelo melhor usando apenas elas.
 
-# Se a resposta para a pergunta anterior foi n„o, construa um novo modelo sem essas vari·veis e o compare ao modelo com todas as vari·veis (e.g. em termos de R2 e RSE).
+# Se a resposta para a pergunta anterior foi n√£o, construa um novo modelo sem essas vari√°veis e o compare ao modelo com todas as vari√°veis (e.g. em termos de R2 e RSE).
 
-#Modelo para o primeiro perÌodo
+#Modelo para o primeiro per√≠odo
 
 require(dplyr)
 
 graduados.primeiro.per.novo  <- graduados.primeiro.per  %>% 
-  select(-ProgramaÁ„o.I,-LaboratÛrio.de.ProgramaÁ„o.I,-Leitura.e.ProduÁ„o.de.Textos)
+  select(-Programa√ß√£o.I,-Laborat√≥rio.de.Programa√ß√£o.I,-Leitura.e.Produ√ß√£o.de.Textos)
 correlationMatrix4 <- cor(graduados.primeiro.per.novo)
 print(correlationMatrix4)
 
 library(corrplot)
-corrplot(correlationMatrix4, method="number", type="lower", order="hclust")
+corrplot(correlationMatrix4,  method="color",   
+         type="lower", order="hclust", 
+         addCoef.col = "black", # Add coefficient of correlation
+         tl.col="black", tl.srt=45, #Text label color and rotation
+         diag=FALSE )
 
-lm1.novo <- lm(cra ~ ¡lgebra.Vetorial.e.Geometria.AnalÌtica + C·lculo.Diferencial.e.Integral.I + IntroduÁ„o.‡.ComputaÁ„o, data= graduados.primeiro.per)
+lm1.novo <- lm(cra ~ √Ålgebra.Vetorial.e.Geometria.Anal√≠tica + C√°lculo.Diferencial.e.Integral.I + Introdu√ß√£o.√†.Computa√ß√£o, data= graduados.primeiro.per)
 
 lm1.novo
 
@@ -186,19 +190,28 @@ summary(lm1.novo)
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm1.novo)
 
-#Modelo para o segundo perÌodo
+#Modelo para o segundo per√≠odo
 
 require(dplyr)
 
 graduados.segundo.per.novo  <- graduados.segundo.per  %>% 
-  select(-C·lculo.Diferencial.e.Integral.II,-LaboratÛrio.de.ProgramaÁ„o.II,-Fundamentos.de.FÌsica.Cl·ssica)
+  select(-C√°lculo.Diferencial.e.Integral.II,-Laborat√≥rio.de.Programa√ß√£o.II,-Fundamentos.de.F√≠sica.Cl√°ssica)
 correlationMatrix5 <- cor(graduados.segundo.per.novo)
 print(correlationMatrix5)
 
 library(corrplot)
-corrplot(correlationMatrix5, method="number", type="lower", order="hclust")
 
-lm2.novo <- lm(cra ~ Matem·tica.Discreta + ProgramaÁ„o.II + Teoria.dos.Grafos, data= graduados.segundo.per)
+corrplot(correlationMatrix5, method="color",   
+         type="lower", order="hclust", 
+         addCoef.col = "black", # Add coefficient of correlation
+         tl.col="black", tl.srt=45, #Text label color and rotation
+         diag=FALSE 
+)
+library("GGally")
+ggcorr(correlationMatrix5, palette = "RdBu", label = TRUE)
+ggpairs(graduados.primeiro.per.novo)
+
+lm2.novo <- lm(cra ~ Matem√°tica.Discreta + Programa√ß√£o.II + Teoria.dos.Grafos, data= graduados.segundo.per)
 
 lm2.novo
 
@@ -207,6 +220,49 @@ summary(lm2.novo)
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm2.novo)
 
-# Analise os plots de resÌduos de cada vari·vel e veja se algum (um ou mais) deles indica n„o aleatoriedade dos erros.
-# Que perÌodo consegue explicar melhor o desempenho final (primeiro ou segundo)?
-# Use o melhor modelo encontrado para predizer o seu prÛprio desempenho e compare a prediÁ„o com o seu CRA atual. Comente o resultado.
+
+library(caret)
+predicoes = predict.lm(lm1,graduados.primeiro.per)
+cra <- graduados.primeiro.per$cra
+residuos = cra - predicoes
+axisRange = extendrange(c(cra,predicoes)) #deixando as vari√°veis na mesma escala
+plot(cra,predicoes)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+predicoes = predict.lm(lm2,graduados.segundo.per)
+cra <- graduados.segundo.per$cra
+residuos = cra - predicoes
+axisRange = extendrange(c(cra,predicoes)) #deixando as vari√°veis na mesma escala
+plot(cra,predicoes)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+predicoes = predict.lm(lm3,graduados.ambos.per)
+cra <- graduados.ambos.per$cra
+residuos = cra - predicoes
+axisRange = extendrange(c(cra,predicoes)) #deixando as vari√°veis na mesma escala
+plot(cra,predicoes)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+predicoes = predict.lm(lm1.novo,graduados.primeiro.per.novo)
+cra <- graduados.primeiro.per.novo$cra
+residuos = cra - predicoes
+axisRange = extendrange(c(cra,predicoes)) #deixando as vari√°veis na mesma escala
+plot(cra,predicoes)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+predicoes = predict.lm(lm2.novo,graduados.segundo.per.novo)
+cra <- graduados.segundo.per.novo$cra
+residuos = cra - predicoes
+axisRange = extendrange(c(cra,predicoes)) #deixando as vari√°veis na mesma escala
+plot(cra,predicoes)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+plot(predicoes,residuos)
+abline(h=0,col="blue",lty=2,lwd=2)
+
+qqnorm(residuos)
+qqline(residuos, col = 2,lwd=2,lty=2)
+
+# Analise os plots de res√≠duos de cada vari√°vel e veja se algum (um ou mais) deles indica n√£o aleatoriedade dos erros.
+# Que per√≠odo consegue explicar melhor o desempenho final (primeiro ou segundo)?
+# Use o melhor modelo encontrado para predizer o seu pr√≥prio desempenho e compare a predi√ß√£o com o seu CRA atual. Comente o resultado.
