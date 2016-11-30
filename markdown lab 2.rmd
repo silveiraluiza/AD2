@@ -1,0 +1,124 @@
+---
+title: "Lab 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Laboratório 2
+
+É sabido que os períodos iniciais do curso de computação estão entre os mais difíceis de todo o curso. Entre os fatores que podem explicar isso, estão disciplinas que são consideradas difíceis para alunos recém saídos do ensino médio, como, por exemplo, Cálculo I, Álgebra Vetorial, P1 e LP1.
+
+A porcentagem de evasão nos primeiros períodos também é bastante alta em relação a períodos posteriores, o que corrobora essa premissa. Isso nos leva a conjecturar que os alunos que apresentam bom desempenho nos períodos iniciais terão um bom desempenho no curso como um todo, ou seja, os alunos que foram bem na parte mais difícil do curso provavelmente irão bem também na parte menos difícil. Podemos colocar essa conjectura à prova por meio da seguinte pergunta:
+
+O desempenho dos alunos nos dois primeiros períodos consegue explicar, em algum grau, seus desempenhos no curso como um todo?
+
+Vamos tentar responder essa pergunta usando regressão linear. Vamos fazer isso quebrando a pergunta anterior nas seguintes perguntas:
+  
+    *Um modelo de regressão múltipla com todas as variáveis é plausível para explicar a variação em y? Em que grau?
+    *Todas as variáveis são úteis para o modelo de regressão?
+    *Se a resposta para a pergunta anterior foi não, construa um novo modelo sem essas variáveis e o compare ao modelo com todas as variáveis (e.g. em termos de R2 e RSE).
+    *Analise os plots de resíduos de cada variável e veja se algum (um ou mais) deles indica não aleatoriedade dos erros.
+    *Que período consegue explicar melhor o desempenho final (primeiro ou segundo)?
+    *Use o melhor modelo encontrado para predizer o seu próprio desempenho e compare a predição com o seu CRA atual. Comente o resultado.
+
+
+```{r}
+# Importando dados
+
+library(readr)
+library(dplyr)
+
+graduados <- read_csv("graduados.csv", col_types = cols(matricula = col_character())) %>%
+  mutate(matricula = as.factor(matricula))
+head(graduados)
+
+str(graduados)
+summary(graduados)
+graduados <- graduados %>%
+  arrange(matricula)
+
+# Limpando dados
+
+graduados.clean <- graduados %>% filter(!is.na(media))
+summary(graduados.clean)
+
+#Agora, vamos calcular o CRA dos alunos:
+
+graduados.cra <- graduados.clean %>%
+  group_by(matricula) %>%
+  mutate(cra.contrib = media*creditos) %>%
+  summarise(cra = sum(cra.contrib)/sum(creditos))
+
+head(graduados.cra)
+
+# Ajustar formato dos dados
+
+library(reshape2)
+
+graduados.model.input <- graduados.clean %>%
+  group_by(matricula,disciplina)  %>%
+  filter(media == max(media)) %>%
+  ungroup() %>%
+  select(matricula,disciplina,media) %>%
+  mutate(disciplina = as.factor(gsub(" ",".",disciplina))) %>%
+  dcast(matricula ~ disciplina, mean) %>%
+  merge(graduados.cra)
+
+head(graduados.model.input)
+
+# Criar tabela com disciplinas do primeiro período
+
+Disciplinas <- c("matricula", "Álgebra.Vetorial.e.Geometria.Analítica","Cálculo.Diferencial.e.Integral.I","Introdução.à.Computação","Laboratório.de.Programação.I","Leitura.e.Produção.de.Textos","Programação.I", "cra")
+graduados.primeiro.per <- graduados.model.input[Disciplinas]
+
+# Criar tabela com disciplinas do segundo período
+
+Disciplinas1 <- c("matricula", "Cálculo.Diferencial.e.Integral.II","Matemática.Discreta","Programação.II","Teoria.dos.Grafos","Fundamentos.de.Física.Clássica","Laboratório.de.Programação.II", "cra")
+graduados.segundo.per <- graduados.model.input[Disciplinas1]
+
+# Criar tabela com disciplinas dos dois períodos
+
+Disciplinas2<- c("matricula", "Cálculo.Diferencial.e.Integral.II","Matemática.Discreta","Programação.II","Teoria.dos.Grafos","Fundamentos.de.Física.Clássica","Laboratório.de.Programação.II", "Álgebra.Vetorial.e.Geometria.Analítica","Cálculo.Diferencial.e.Integral.I","Introdução.à.Computação","Laboratório.de.Programação.I","Leitura.e.Produção.de.Textos","Programação.I", "cra")
+graduados.ambos.per <- graduados.model.input[Disciplinas2]
+
+#limpando as tabelas
+
+graduados.primeiro.per <- na.omit(graduados.primeiro.per)
+graduados.segundo.per <- na.omit(graduados.segundo.per)
+graduados.ambos.per <- na.omit(graduados.ambos.per)
+
+### Removendo matricula
+require(dplyr)
+graduados.primeiro.per  <- graduados.primeiro.per  %>% select(-matricula)
+graduados.segundo.per  <- graduados.segundo.per  %>% select(-matricula)
+graduados.ambos.per  <- graduados.ambos.per  %>% select(-matricula)
+
+```
+
+# Examinando o histograma das variáveis
+
+Abaixo temos os histograma das notas das disciplinas do primeiro e segundo período
+
+```{r, echo=FALSE}
+require(reshape2)
+require(ggplot2)
+
+df <- melt(graduados.primeiro.per)
+ggplot(df,aes(x = value)) +
+  facet_wrap(~variable, scales = "free_x") +
+  geom_histogram()
+
+df1 <- melt(graduados.segundo.per)
+ggplot(df1,aes(x = value)) +
+  facet_wrap(~variable, scales = "free_x") +
+  geom_histogram()
+
+```
+
+# Correlação
+
+Inicialmente iremos calcular a correlação entre as notas das disciplinas do primeiro período e o cra 
+
