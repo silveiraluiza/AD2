@@ -7,7 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Laboratório 2
+# Laboratório 2
 
 É sabido que os períodos iniciais do curso de computação estão entre os mais difíceis de todo o curso. Entre os fatores que podem explicar isso, estão disciplinas que são consideradas difíceis para alunos recém saídos do ensino médio, como, por exemplo, Cálculo I, Álgebra Vetorial, P1 e LP1.
 
@@ -102,7 +102,7 @@ graduados.ambos.per  <- graduados.ambos.per  %>% select(-matricula)
 
 ```
 
-# Examinando o histograma das variáveis
+### Examinando o histograma das variáveis
 
 Abaixo temos os histograma das notas das disciplinas do primeiro e segundo período
 
@@ -161,7 +161,7 @@ summary(lm1)
 
 Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis Álgebra Linear, Introdução à Computação e Cálculo Diferencial e Integral I. Portanto é seguro afirmar que essas são as variáveis com maior relevância no modelo.
 
-# Gráficos de Resíduo 
+### Gráficos de Resíduo 
 
 ``` {r}
 
@@ -170,7 +170,7 @@ plot(lm1)
 
 ```
 
-# Gráfico das Predições
+### Gráfico das Predições
 
 ```{r}
 library(caret)
@@ -225,7 +225,7 @@ summary(lm2)
 
 Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis Matemática Discreta, Programação II, Teoria dos Grafos. Portanto é seguro afirmar que essas são as variáveis com maior relevância no modelo.
 
-# Gráficos de Resíduo 
+### Gráficos de Resíduo 
 
 ``` {r}
 
@@ -234,7 +234,7 @@ plot(lm2)
 
 ```
 
-# Gráfico das Predições
+### Gráfico das Predições
 
 ```{r}
 library(caret)
@@ -294,7 +294,7 @@ summary(lm3)
 
 Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis de Matemática Discreta e Programação II.
 
-# Gráficos de Resíduo 
+### Gráficos de Resíduo 
 
 ``` {r}
 
@@ -303,7 +303,7 @@ plot(lm3)
 
 ```
 
-# Gráfico das Predições
+### Gráfico das Predições
 
 ```{r}
 library(caret)
