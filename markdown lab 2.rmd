@@ -91,28 +91,90 @@ graduados.ambos.per  <- graduados.ambos.per  %>% select(-matricula)
 
 
 ```
+## Examinando Histograma das variáveis
 
-### Examinando o histograma das variáveis
-
-Abaixo temos os histograma das notas das disciplinas do primeiro e segundo período
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
 require(reshape2)
 require(ggplot2)
 
 df <- melt(graduados.primeiro.per)
-
 ggplot(df,aes(x = value)) +
   facet_wrap(~variable, scales = "free_x") +
   geom_histogram()
 
 df1 <- melt(graduados.segundo.per)
-
 ggplot(df1,aes(x = value)) +
   facet_wrap(~variable, scales = "free_x") +
   geom_histogram()
 
 ```
+
+## Modelo com todas as variáveis
+
+Inicialmente iremos utilizar a biblioteca corrplot para observar a correlação entre as disciplinas e o cra.
+
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
+library(corrplot)
+
+colnames(graduados.ambos.per) <- c("Cálculo.II", "MatDis", "P2", "Grafos", "Física", "LP2", "Vetorial", "Calculo.I", "IC", "LP1", "LPT", "P1", "cra")
+
+correlationMatrix <- cor(graduados.ambos.per)
+
+corrplot(correlationMatrix, method="circle", type="lower", order="hclust")
+
+
+```
+
+Então escrevemos a equação da correlação linear:
+
+``` {r, message=FALSE, warning=FALSE}
+
+# Escrevendo a equação da correlação linear
+
+lm3 <- lm(cra ~ Vetorial +
+            Calculo.I + IC
+          + LP1 + LPT + 
+            P1 + Cálculo.II + MatDis
+          + P2 + Grafos + Física
+          + LP2, data= graduados.ambos.per)
+
+summary(lm3)
+
+```
+
+Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis de Matemática Discreta e Programação II.
+
+O modelo com todas as variáveis possui um RSE de 0.5046 e um R² ajustado de 0.6474, portanto ele é plausível, porém possui algumas variáveis que não são úteis, desse modo temos que ele pode ser melhorado.
+
+### Gráficos de Resíduo 
+
+Pelo que pode ser observado nos gráficos de resíduo os erros são aleatórios.
+
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
+
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
+plot(lm3)
+
+```
+
+### Gráfico das Predições
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(caret)
+
+predicoes3 = predict.lm(lm3,graduados.ambos.per)
+cra3 <- graduados.ambos.per$cra
+
+residuos3 = cra3 - predicoes3
+
+axisRange = extendrange(c(cra3,predicoes3)) #deixando as variáveis na mesma escala
+
+plot(cra3,predicoes3)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+```
+
+
 
 ## Correlação do primeiro período
 
@@ -132,13 +194,14 @@ Podemos observar que as disciplinas com maior correlação com o cra são Introd
 
 lm1 <- lm(cra ~ Álgebra.Vetorial.e.Geometria.Analítica + Cálculo.Diferencial.e.Integral.I + Introdução.à.Computação + Laboratório.de.Programação.I + Leitura.e.Produção.de.Textos + Programação.I, data= graduados.primeiro.per)
 
-lm1
 
 summary(lm1)
 
 ```
 
 Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis Álgebra Linear, Introdução à Computação e Cálculo Diferencial e Integral I. Portanto é seguro afirmar que essas são as variáveis com maior relevância no modelo.
+
+Também podemos observar o valor do R² ajustado que é ~0.54, o seu RSE é de 0.56. O modelo consegue explicar ~54%  da variável alvo CRA. 
 
 ### Gráficos de Resíduo 
 
@@ -186,12 +249,12 @@ Podemos observar que as disciplinas com maior correlação com o cra são Matem�
 
 lm2 <- lm(cra ~ Cálculo.Diferencial.e.Integral.II + Matemática.Discreta + Programação.II + Teoria.dos.Grafos + Fundamentos.de.Física.Clássica + Laboratório.de.Programação.II, data= graduados.segundo.per)
 
-lm2
-
 summary(lm2)
 ```
 
 Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis Matemática Discreta, Programação II, Teoria dos Grafos. Portanto é seguro afirmar que essas são as variáveis com maior relevância no modelo.
+
+Também vemos que seu R² ajustado é de 0.64 e seu RSE é 0.50.  
 
 ### Gráficos de Resíduo 
 
@@ -221,65 +284,6 @@ abline(0,1,col="blue",lty=2,lwd=2)
 
 ```
 
-## Modelo com todas as variáveis
-
-Inicialmente iremos utilizar o GGally para observar a correlação entre as disciplinas e o cra.
-
-``` {r, echo=FALSE, message=FALSE, warning=FALSE}
-library("GGally")
-ggpairs(graduados.ambos.per)
-
-```
-
-Então escrevemos a equação da correlação linear:
-
-``` {r, message=FALSE, warning=FALSE}
-
-# Escrevendo a equação da correlação linear
-
-lm3 <- lm(cra ~ Álgebra.Vetorial.e.Geometria.Analítica +
-            Cálculo.Diferencial.e.Integral.I + Introdução.à.Computação
-          + Laboratório.de.Programação.I + Leitura.e.Produção.de.Textos + 
-            Programação.I + Cálculo.Diferencial.e.Integral.II + Matemática.Discreta
-          + Programação.II + Teoria.dos.Grafos + Fundamentos.de.Física.Clássica
-          + Laboratório.de.Programação.II, data= graduados.ambos.per)
-
-lm3
-
-summary(lm3)
-
-```
-
-Ao criar a função de correlação linear e utilizar a função summary observamos que o p-value mais baixo é o das variáveis de Matemática Discreta e Programação II.
-
-### Gráficos de Resíduo 
-
-Pelo que pode ser observado nos gráficos de resíduo os erros são aleatórios.
-
-``` {r, echo=FALSE, message=FALSE, warning=FALSE}
-
-layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
-plot(lm3)
-
-```
-
-### Gráfico das Predições
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-library(caret)
-
-predicoes3 = predict.lm(lm3,graduados.ambos.per)
-cra3 <- graduados.ambos.per$cra
-
-residuos3 = cra3 - predicoes3
-
-axisRange = extendrange(c(cra3,predicoes3)) #deixando as variáveis na mesma escala
-
-plot(cra3,predicoes3)
-abline(0,1,col="blue",lty=2,lwd=2)
-
-```
-
 ## Criando modelos melhores
 
 Como nem todas as variáveis são úteis no modelo de regressão, para criar modelos melhores escolhemos as variáveis com maior relevância de cada período.
@@ -290,7 +294,7 @@ Como nem todas as variáveis são úteis no modelo de regressão, para criar mod
 require(dplyr)
 
 graduados.primeiro.per.novo  <- graduados.primeiro.per  %>% 
-  select(-Programação.I,-Laboratório.de.Programação.I,-Leitura.e.Produção.de.Textos)
+  select(-Leitura.e.Produção.de.Textos)
 
 ```
 
@@ -305,42 +309,25 @@ ggpairs(graduados.primeiro.per.novo)
 Abaixo definimos a correlação linear múltipla do novo modelo
 
 ```{r, message=FALSE, warning=FALSE}
-lm1.novo <- lm(cra ~ Álgebra.Vetorial.e.Geometria.Analítica + Cálculo.Diferencial.e.Integral.I + Introdução.à.Computação, data= graduados.primeiro.per)
+lm1.novo <- lm(cra ~ Álgebra.Vetorial.e.Geometria.Analítica + Cálculo.Diferencial.e.Integral.I + Introdução.à.Computação + Programação.I + Laboratório.de.Programação.I, data= graduados.primeiro.per)
 
-lm1.novo
 
 summary(lm1.novo)
 ```
 
-### Gráficos de Resíduo 
+O RSE é de 0.57 e o R² ajustado é aproximandamente 0.53, não houve melhora no modelo ao retirarmos a variável de Leitura e Produção de Textos, pois com esta variável inclusa temos R² ajustado sendo ~0.54, e o RSE igual a 0.56.
 
-Podemos verificar que os erros são de fato aleatórios ao observar os gráficos de resíduo.
+```{r, message=FALSE, warning=FALSE}
+lm1.novo <- lm(cra ~ Álgebra.Vetorial.e.Geometria.Analítica + Cálculo.Diferencial.e.Integral.I + Introdução.à.Computação + Programação.I, data= graduados.primeiro.per)
 
-``` {r, echo=FALSE, message=FALSE, warning=FALSE}
-
-layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
-plot(lm1.novo)
-
+summary(lm1.novo)
 ```
 
-### Gráfico das Predições
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-library(caret)
-
-predicoes.novo = predict.lm(lm1.novo,graduados.primeiro.per.novo)
-cra.novo <- graduados.primeiro.per.novo$cra
-
-residuos.novo = cra.novo - predicoes.novo
-
-axisRange = extendrange(c(cra.novo,predicoes.novo)) #deixando as variáveis na mesma escala
-
-plot(cra3,predicoes3)
-abline(0,1,col="blue",lty=2,lwd=2)
-
-```
+Se retirarmos outra variável que não possui correlação alta com o cra, como Laboratório de Programação I também observamos que não há melhora no modelo. Portanto, para analisar a correlação entre as notas do primeiro período e o cra o modelo que devemos usar é o inicialmente proposto.
 
 ## Modelo novo do segundo período
+
+Selecionamos apenas as variáveis escolhidas como mais importantes.
 
 ``` {r, message=FALSE, warning=FALSE}
 # Novo modelo para o segundo período
@@ -365,10 +352,10 @@ Abaixo definimos a correlação linear múltipla do novo modelo
 ```{r, message=FALSE, warning=FALSE}
 lm2.novo <- lm(cra ~ Matemática.Discreta + Programação.II + Teoria.dos.Grafos, data= graduados.segundo.per)
 
-lm2.novo
-
 summary(lm2.novo)
 ```
+
+O novo modelo possui um RSE de 0.4997 e um R² ajustado de 0.65, o valor do RSE é menor do que o modelo original e o valor do R² ajustado é superior ao original, portanto temos que esse modelo é melhor.
 
 ### Gráficos de Resíduo 
 
@@ -393,7 +380,90 @@ residuos2.novo = cra2.novo - predicoes2.novo
 
 axisRange = extendrange(c(cra2.novo,predicoes2.novo)) #deixando as variáveis na mesma escala
 
-plot(cra2,predicoes2)
+plot(cra2.novo,predicoes2.novo)
 abline(0,1,col="blue",lty=2,lwd=2)
 
 ```
+
+## Modelo novo de ambos os períodos
+
+Primeiro retiramos variáveis que consideramos irrelevantes, como Leitura e Produção de Textos e LP1.
+
+``` {r, message=FALSE, warning=FALSE}
+
+# Escrevendo a equação da correlação linear
+
+lm3.novo <- lm(cra ~ Vetorial +
+            Calculo.I + IC +
+            P1 + Cálculo.II + MatDis
+          + P2 + Grafos + Física
+          + LP2, data= graduados.ambos.per)
+
+summary(lm3.novo)
+
+```
+
+Temos que o RSE é igual a 0.509 e o R² ajustado é 0.6411, houve um ligeiro aumento do RSE e uma diminuição no R² ajustado, o outro modelo continua sendo melhor. Vamos deixar as variáveis com os menores p-values apenas e verificar o que acontece.
+
+``` {r, message=FALSE, warning=FALSE}
+
+# Escrevendo a equação da correlação linear
+
+lm3.novo <- lm(cra ~ Vetorial + IC +
+          + MatDis + P2 + Grafos, data= graduados.ambos.per)
+
+summary(lm3.novo)
+
+```
+
+O novo RSE é de 0.4983 (< 0.5046) e o R² ajustado é de 0.6561 (> 0.6474), portanto esse modelo é melhor que o original.
+
+### Gráfico de correlação
+
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
+library(corrplot)
+
+graduados.ambos.per.novo <- graduados.ambos.per  %>% 
+  select(-Calculo.I, -LP1, -LPT, 
+            -P1, -Cálculo.II, -Física, -LP2)
+
+correlationMatrix1 <- cor(graduados.ambos.per.novo)
+
+corrplot(correlationMatrix1, method="color", type="lower", order="hclust", addCoef.col = "black")
+
+
+```
+
+### Gráficos de Resíduo 
+
+Com o auxílio destes gráficos verificamos que o erro realmente é aleatório.
+
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
+
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
+plot(lm3.novo)
+
+```
+
+### Gráfico das Predições
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE}
+library(caret)
+
+predicoes3.novo = predict.lm(lm3.novo,graduados.ambos.per.novo)
+cra3.novo <- graduados.ambos.per.novo$cra
+
+residuos3.novo = cra3.novo - predicoes3.novo
+
+axisRange = extendrange(c(cra3.novo,predicoes3.novo)) #deixando as variáveis na mesma escala
+
+plot(cra3.novo,predicoes3.novo)
+abline(0,1,col="blue",lty=2,lwd=2)
+
+```
+
+## Que período consegue explicar melhor o desempenho final?
+
+Baseando-se nos valores de RSE e R² ajustado podemos afirmar que o segundo período pode explicar melhor o desempenho final.
+
+## Usando o modelo
