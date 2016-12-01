@@ -1,5 +1,5 @@
 ---
-title: "Lab 2"
+title: "Laboratório 2"
 output: html_document
 ---
 
@@ -7,7 +7,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Laboratório 2
 
 É sabido que os períodos iniciais do curso de computação estão entre os mais difíceis de todo o curso. Entre os fatores que podem explicar isso, estão disciplinas que são consideradas difíceis para alunos recém saídos do ensino médio, como, por exemplo, Cálculo I, Álgebra Vetorial, P1 e LP1.
 
@@ -29,7 +28,7 @@ Vamos tentar responder essa pergunta usando regressão linear. Vamos fazer isso 
 
 -Use o melhor modelo encontrado para predizer o seu próprio desempenho e compare a predição com o seu CRA atual. Comente o resultado.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # Importando dados
 
 library(readr)
@@ -37,10 +36,7 @@ library(dplyr)
 
 graduados <- read_csv("graduados.csv", col_types = cols(matricula = col_character())) %>%
   mutate(matricula = as.factor(matricula))
-head(graduados)
 
-str(graduados)
-summary(graduados)
 graduados <- graduados %>%
   arrange(matricula)
 
@@ -48,16 +44,12 @@ graduados <- graduados %>%
 
 graduados.clean <- graduados %>% filter(!is.na(media))
 
-summary(graduados.clean)
-
 #Agora, vamos calcular o CRA dos alunos:
 
 graduados.cra <- graduados.clean %>%
   group_by(matricula) %>%
   mutate(cra.contrib = media*creditos) %>%
   summarise(cra = sum(cra.contrib)/sum(creditos))
-
-head(graduados.cra)
 
 # Ajustar formato dos dados
 
@@ -71,8 +63,6 @@ graduados.model.input <- graduados.clean %>%
   mutate(disciplina = as.factor(gsub(" ",".",disciplina))) %>%
   dcast(matricula ~ disciplina, mean) %>%
   merge(graduados.cra)
-
-head(graduados.model.input)
 
 # Criar tabelas com disciplinas do primeiro período
 
@@ -106,16 +96,18 @@ graduados.ambos.per  <- graduados.ambos.per  %>% select(-matricula)
 
 Abaixo temos os histograma das notas das disciplinas do primeiro e segundo período
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 require(reshape2)
 require(ggplot2)
 
 df <- melt(graduados.primeiro.per)
+
 ggplot(df,aes(x = value)) +
   facet_wrap(~variable, scales = "free_x") +
   geom_histogram()
 
 df1 <- melt(graduados.segundo.per)
+
 ggplot(df1,aes(x = value)) +
   facet_wrap(~variable, scales = "free_x") +
   geom_histogram()
@@ -126,7 +118,7 @@ ggplot(df1,aes(x = value)) +
 
 Inicialmente iremos usar o GGally para mostrar a correlação entre as variáveis
 
-``` {r, echo=FALSE}
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
 library("GGally")
 ggpairs(graduados.primeiro.per)
 
@@ -134,7 +126,7 @@ ggpairs(graduados.primeiro.per)
 
 Podemos observar que as disciplinas com maior correlação com o cra são Introdução à Computação, Álgebra Vetorial, Cálculo I e Programação I. Em seguida escrevemos a equação da correlação linear.
 
-``` {r}
+``` {r,message=FALSE, warning=FALSE}
 
 # Escrevendo a equação da correlação linear
 
@@ -152,7 +144,7 @@ Ao criar a função de correlação linear e utilizar a função summary observa
 
 Podemos observar com os gráficos de resíduo que os erros são de fato aleatórios.
 
-``` {r, echo=FALSE}
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm1)
@@ -161,7 +153,7 @@ plot(lm1)
 
 ### Gráfico das Predições
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(caret)
 
 predicoes = predict.lm(lm1,graduados.primeiro.per)
@@ -180,7 +172,7 @@ abline(0,1,col="blue",lty=2,lwd=2)
 
 Inicialmente iremos visualizar a correlação entre as disciplinas e o cra com o auxílio do GGally
 
-``` {r, echo=FALSE}
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
 library("GGally")
 ggpairs(graduados.segundo.per)
 
@@ -188,7 +180,7 @@ ggpairs(graduados.segundo.per)
 
 Podemos observar que as disciplinas com maior correlação com o cra são Matemática Discreta, Programação II, Teoria dos Grafos e Cálculo II. Em seguida escrevemos a equação da correlação linear.
 
-``` {r}
+``` {r, message=FALSE, warning=FALSE}
 
 # Escrevendo a equação da correlação linear
 
@@ -205,7 +197,7 @@ Ao criar a função de correlação linear e utilizar a função summary observa
 
 Visualizando os gráficos de resíduo podemos chegar a conclusão que os erros são de fato aleatórios.
 
-``` {r, echo=FALSE}
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm2)
@@ -214,7 +206,7 @@ plot(lm2)
 
 ### Gráfico das Predições
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(caret)
 
 predicoes2 = predict.lm(lm2,graduados.segundo.per)
@@ -233,7 +225,7 @@ abline(0,1,col="blue",lty=2,lwd=2)
 
 Inicialmente iremos utilizar o GGally para observar a correlação entre as disciplinas e o cra.
 
-``` {r, echo=FALSE}
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
 library("GGally")
 ggpairs(graduados.ambos.per)
 
@@ -241,7 +233,7 @@ ggpairs(graduados.ambos.per)
 
 Então escrevemos a equação da correlação linear:
 
-``` {r}
+``` {r, message=FALSE, warning=FALSE}
 
 # Escrevendo a equação da correlação linear
 
@@ -264,7 +256,7 @@ Ao criar a função de correlação linear e utilizar a função summary observa
 
 Pelo que pode ser observado nos gráficos de resíduo os erros são aleatórios.
 
-``` {r, echo=FALSE}
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm3)
@@ -273,7 +265,7 @@ plot(lm3)
 
 ### Gráfico das Predições
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(caret)
 
 predicoes3 = predict.lm(lm3,graduados.ambos.per)
@@ -292,7 +284,7 @@ abline(0,1,col="blue",lty=2,lwd=2)
 
 Como nem todas as variáveis são úteis no modelo de regressão, para criar modelos melhores escolhemos as variáveis com maior relevância de cada período.
 
-``` {r}
+``` {r, message=FALSE, warning=FALSE}
 # Novo modelo para o primeiro período
 
 require(dplyr)
@@ -304,7 +296,7 @@ graduados.primeiro.per.novo  <- graduados.primeiro.per  %>%
 
 Então visualizamos a correlação entre as variáveis:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library("GGally")
 ggpairs(graduados.primeiro.per.novo)
 
@@ -312,7 +304,7 @@ ggpairs(graduados.primeiro.per.novo)
 
 Abaixo definimos a correlação linear múltipla do novo modelo
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 lm1.novo <- lm(cra ~ Álgebra.Vetorial.e.Geometria.Analítica + Cálculo.Diferencial.e.Integral.I + Introdução.à.Computação, data= graduados.primeiro.per)
 
 lm1.novo
@@ -324,7 +316,7 @@ summary(lm1.novo)
 
 Podemos verificar que os erros são de fato aleatórios ao observar os gráficos de resíduo.
 
-``` {r, echo=FALSE}
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm1.novo)
@@ -333,7 +325,7 @@ plot(lm1.novo)
 
 ### Gráfico das Predições
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(caret)
 
 predicoes.novo = predict.lm(lm1.novo,graduados.primeiro.per.novo)
@@ -350,7 +342,7 @@ abline(0,1,col="blue",lty=2,lwd=2)
 
 ## Modelo novo do segundo período
 
-``` {r}
+``` {r, message=FALSE, warning=FALSE}
 # Novo modelo para o segundo período
 
 require(dplyr)
@@ -362,7 +354,7 @@ graduados.segundo.per.novo  <- graduados.segundo.per  %>%
 
 Então visualizamos a correlação entre as variáveis:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library("GGally")
 ggpairs(graduados.segundo.per.novo)
 
@@ -370,7 +362,7 @@ ggpairs(graduados.segundo.per.novo)
 
 Abaixo definimos a correlação linear múltipla do novo modelo
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 lm2.novo <- lm(cra ~ Matemática.Discreta + Programação.II + Teoria.dos.Grafos, data= graduados.segundo.per)
 
 lm2.novo
@@ -382,7 +374,7 @@ summary(lm2.novo)
 
 Com o auxílio destes gráficos verificamos que o erro realmente é aleatório.
 
-``` {r, echo=FALSE}
+``` {r, echo=FALSE, message=FALSE, warning=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm2.novo)
@@ -391,7 +383,7 @@ plot(lm2.novo)
 
 ### Gráfico das Predições
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(caret)
 
 predicoes2.novo = predict.lm(lm2.novo,graduados.segundo.per.novo)
