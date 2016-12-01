@@ -106,19 +106,25 @@ graduados.ambos.per  <- graduados.ambos.per  %>% select(-matricula)
 
 Abaixo temos os histograma das notas das disciplinas do primeiro e segundo período
 
-```{r}
+```{r, echo=FALSE}
 require(reshape2)
 require(ggplot2)
 
 df <- melt(graduados.primeiro.per)
-ggplot(df,aes(x = value)) +
+
+gg <- ggplot(df,aes(x = value)) +
   facet_wrap(~variable, scales = "free_x") +
   geom_histogram()
 
-df1 <- melt(graduados.segundo.per)
+gg1 <- df1 <- melt(graduados.segundo.per)
+
 ggplot(df1,aes(x = value)) +
   facet_wrap(~variable, scales = "free_x") +
   geom_histogram()
+
+gg
+
+gg1
 
 ```
 
