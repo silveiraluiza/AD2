@@ -111,47 +111,28 @@ require(reshape2)
 require(ggplot2)
 
 df <- melt(graduados.primeiro.per)
-
-gg <- ggplot(df,aes(x = value)) +
+ggplot(df,aes(x = value)) +
   facet_wrap(~variable, scales = "free_x") +
   geom_histogram()
 
-gg1 <- df1 <- melt(graduados.segundo.per)
-
+df1 <- melt(graduados.segundo.per)
 ggplot(df1,aes(x = value)) +
   facet_wrap(~variable, scales = "free_x") +
   geom_histogram()
-
-gg
-
-gg1
 
 ```
 
 ## Correlação do primeiro período
 
-Inicialmente iremos criar a matriz de correlação das disciplinas do primeiro período com o cra
+Inicialmente iremos usar o GGally para mostrar a correlação entre as variáveis
 
-``` {r}
-correlationMatrix <- cor(graduados.primeiro.per)
-print(correlationMatrix)
-
-library(corrplot)
-corrplot(correlationMatrix, method="color",   
-         type="lower", order="hclust", 
-         addCoef.col = "black",
-         tl.col="black", tl.srt=45,
-         diag=FALSE)
-
-```
-
-``` {r}
+``` {r, echo=FALSE}
 library("GGally")
 ggpairs(graduados.primeiro.per)
 
 ```
 
-Podemos observar que as disciplinas com maior correlação com o cra são Introdução à Computação, Álgebra Vetorial, Cálculo I e Programação I
+Podemos observar que as disciplinas com maior correlação com o cra são Introdução à Computação, Álgebra Vetorial, Cálculo I e Programação I. Em seguida escrevemos a equação da correlação linear.
 
 ``` {r}
 
@@ -169,7 +150,9 @@ Ao criar a função de correlação linear e utilizar a função summary observa
 
 ### Gráficos de Resíduo 
 
-``` {r}
+Podemos observar com os gráficos de resíduo que os erros são de fato aleatórios.
+
+``` {r, echo=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm1)
@@ -178,7 +161,7 @@ plot(lm1)
 
 ### Gráfico das Predições
 
-```{r}
+```{r, echo=FALSE}
 library(caret)
 
 predicoes = predict.lm(lm1,graduados.primeiro.per)
@@ -195,28 +178,15 @@ abline(0,1,col="blue",lty=2,lwd=2)
 
 ## Correlação do segundo período
 
-Inicialmente iremos criar a matriz de correlação das disciplinas do segundo período com o cra
+Inicialmente iremos visualizar a correlação entre as disciplinas e o cra com o auxílio do GGally
 
-``` {r}
-correlationMatrix2 <- cor(graduados.segundo.per)
-print(correlationMatrix2)
-
-library(corrplot)
-corrplot(correlationMatrix2, method="color",   
-         type="lower", order="hclust", 
-         addCoef.col = "black",
-         tl.col="black", tl.srt=45,
-         diag=FALSE)
-
-```
-
-``` {r}
+``` {r, echo=FALSE}
 library("GGally")
 ggpairs(graduados.segundo.per)
 
 ```
 
-Podemos observar que as disciplinas com maior correlação com o cra são Matemática Discreta, Programação II, Teoria dos Grafos e Cálculo II.
+Podemos observar que as disciplinas com maior correlação com o cra são Matemática Discreta, Programação II, Teoria dos Grafos e Cálculo II. Em seguida escrevemos a equação da correlação linear.
 
 ``` {r}
 
@@ -233,7 +203,9 @@ Ao criar a função de correlação linear e utilizar a função summary observa
 
 ### Gráficos de Resíduo 
 
-``` {r}
+Visualizando os gráficos de resíduo podemos chegar a conclusão que os erros são de fato aleatórios.
+
+``` {r, echo=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm2)
@@ -242,7 +214,7 @@ plot(lm2)
 
 ### Gráfico das Predições
 
-```{r}
+```{r, echo=FALSE}
 library(caret)
 
 predicoes2 = predict.lm(lm2,graduados.segundo.per)
@@ -259,27 +231,15 @@ abline(0,1,col="blue",lty=2,lwd=2)
 
 ## Modelo com todas as variáveis
 
-Inicialmente iremos criar a matriz de correlação das disciplinas de ambos os períodos com o cra
+Inicialmente iremos utilizar o GGally para observar a correlação entre as disciplinas e o cra.
 
-``` {r}
-correlationMatrix3 <- cor(graduados.ambos.per)
-print(correlationMatrix3)
-
-library(corrplot)
-corrplot(correlationMatrix3, method="color",   
-         type="lower", order="hclust", 
-         addCoef.col = "black",
-         tl.col="black", tl.srt=45,
-         diag=FALSE)
-
-```
-
-``` {r}
+``` {r, echo=FALSE}
 library("GGally")
 ggpairs(graduados.ambos.per)
 
 ```
 
+Então escrevemos a equação da correlação linear:
 
 ``` {r}
 
@@ -302,7 +262,9 @@ Ao criar a função de correlação linear e utilizar a função summary observa
 
 ### Gráficos de Resíduo 
 
-``` {r}
+Pelo que pode ser observado nos gráficos de resíduo os erros são aleatórios.
+
+``` {r, echo=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm3)
@@ -311,7 +273,7 @@ plot(lm3)
 
 ### Gráfico das Predições
 
-```{r}
+```{r, echo=FALSE}
 library(caret)
 
 predicoes3 = predict.lm(lm3,graduados.ambos.per)
@@ -338,24 +300,11 @@ require(dplyr)
 graduados.primeiro.per.novo  <- graduados.primeiro.per  %>% 
   select(-Programação.I,-Laboratório.de.Programação.I,-Leitura.e.Produção.de.Textos)
 
-correlationMatrix.nova <- cor(graduados.primeiro.per.novo)
-print(correlationMatrix.nova)
 ```
 
-``` {r}
-# Visualização da matriz de correlação
+Então visualizamos a correlação entre as variáveis:
 
-library(corrplot)
-
-corrplot(correlationMatrix.nova,  method="color",   
-         type="lower", order="hclust", 
-         addCoef.col = "black", # Add coefficient of correlation
-         tl.col="black", tl.srt=45, #Text label color and rotation
-         diag=FALSE )
-```
-
-```{r}
-# Visualização da matriz de correlação
+```{r, echo=FALSE}
 library("GGally")
 ggpairs(graduados.primeiro.per.novo)
 
@@ -373,7 +322,9 @@ summary(lm1.novo)
 
 ### Gráficos de Resíduo 
 
-``` {r}
+Podemos verificar que os erros são de fato aleatórios ao observar os gráficos de resíduo.
+
+``` {r, echo=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm1.novo)
@@ -382,7 +333,7 @@ plot(lm1.novo)
 
 ### Gráfico das Predições
 
-```{r}
+```{r, echo=FALSE}
 library(caret)
 
 predicoes.novo = predict.lm(lm1.novo,graduados.primeiro.per.novo)
@@ -407,24 +358,11 @@ require(dplyr)
 graduados.segundo.per.novo  <- graduados.segundo.per  %>% 
   select(-Cálculo.Diferencial.e.Integral.II,-Laboratório.de.Programação.II,-Fundamentos.de.Física.Clássica)
 
-correlationMatrix2.nova <- cor(graduados.segundo.per.novo)
-print(correlationMatrix2.nova)
 ```
 
-``` {r}
-# Visualização da matriz de correlação
+Então visualizamos a correlação entre as variáveis:
 
-library(corrplot)
-
-corrplot(correlationMatrix2.nova,  method="color",   
-         type="lower", order="hclust", 
-         addCoef.col = "black", # Add coefficient of correlation
-         tl.col="black", tl.srt=45, #Text label color and rotation
-         diag=FALSE )
-```
-
-```{r}
-# Visualização da matriz de correlação
+```{r, echo=FALSE}
 library("GGally")
 ggpairs(graduados.segundo.per.novo)
 
@@ -442,7 +380,9 @@ summary(lm2.novo)
 
 ### Gráficos de Resíduo 
 
-``` {r}
+Com o auxílio destes gráficos verificamos que o erro realmente é aleatório.
+
+``` {r, echo=FALSE}
 
 layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page
 plot(lm2.novo)
