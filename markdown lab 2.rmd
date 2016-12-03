@@ -467,3 +467,22 @@ abline(0,1,col="blue",lty=2,lwd=2)
 Baseando-se nos valores de RSE e R² ajustado podemos afirmar que o segundo período pode explicar melhor o desempenho final.
 
 ## Usando o modelo
+
+Usando o modelo do segundo período calcularei o meu cra previsto e vou compara-lo ao cra atual.
+
+``` {r, message=FALSE, warning=FALSE}
+
+cra.real <- 7.6
+
+cra.previsto <- predict.lm(lm2.novo,
+           data.frame(Matemática.Discreta = 7.4,
+                      Programação.II = 9.2, Teoria.dos.Grafos = 9.0))
+
+cra.residuals <- cra.real - cra.previsto
+
+cra.previsto
+cra.residuals #Resíduo
+
+```
+
+Como pode se observar o erro do modelo foi baixo, creio que o erro foi devido ao fato de fatores externos atuarem sobre o meu rendimento em disciplinas.   
