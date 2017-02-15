@@ -1,5 +1,5 @@
 ---
-title: "LaboratÛrio 3 Parte 1"
+title: "Laborat√≥rio 3 Parte 1"
 author: "Luiza Carvalho"
 output: html_document
 ---
@@ -9,54 +9,91 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Problema
 
-Essa primeira etapa o objetivo È entender os dados e pensar em atributos que podem ajudar na classificaÁ„o. Lembre-se que grande parte do sucesso de uma tarefa de prediÁ„o est· na escolha de bons atributos. De forma concreta:
+Essa primeira etapa o objetivo √© entender os dados e pensar em atributos que podem ajudar na classifica√ß√£o. Lembre-se que grande parte do sucesso de uma tarefa de predi√ß√£o est√° na escolha de bons atributos. De forma concreta:
 
-*Gere uma visualizaÁ„o que mostre em que ano houve mais evasıes;
+*Gere uma visualiza√ß√£o que mostre em que ano houve mais evas√µes;
 
-*Gere uma visualizaÁ„o da distribuiÁ„o das classes (n˙mero de inst‚ncias de cada classe nos dados);
+*Gere uma visualiza√ß√£o da distribui√ß√£o das classes (n√∫mero de inst√¢ncias de cada classe nos dados);
 
-*H· desbalanceamento das classes (isto È, uma classe tem muito mais inst‚ncias que outra)? Em que proporÁ„o? Quais efeitos colaterais o desbalancemanento de classes pode causar no classificador? 
+*H√° desbalanceamento das classes (isto √©, uma classe tem muito mais inst√¢ncias que outra)? Em que propor√ß√£o? Quais efeitos colaterais o desbalancemanento de classes pode causar no classificador? 
 
-*Crie pelo menos um atributo novo, que n„o seja a mÈdia da disciplina, que vocÍ acha que pode ajudar na classificaÁ„o. 
+*Crie pelo menos um atributo novo, que n√£o seja a m√©dia da disciplina, que voc√™ acha que pode ajudar na classifica√ß√£o. 
 
-*Descreva-o e diga por que vocÍ acha que pode ser uma boa ideia us·-lo;
-Compare visualmente a distribuiÁ„o desse atributo em cada classe (e.g. usando boxplots): elas parecem ser diferentes? O que ajuda mais o classificador, atributos que tem distribuiÁıes de valores diferentes entre as classes ou distribuiÁıes parecidas? Por que?
+*Descreva-o e diga por que voc√™ acha que pode ser uma boa ideia us√°-lo;
+Compare visualmente a distribui√ß√£o desse atributo em cada classe (e.g. usando boxplots): elas parecem ser diferentes? O que ajuda mais o classificador, atributos que tem distribui√ß√µes de valores diferentes entre as classes ou distribui√ß√µes parecidas? Por que?
 
 
-### Gerando VisualizaÁ„o das evasıes
+### Gerando Visualiza√ß√£o das evas√µes
+
+Temos as seguintes colunas em nossa base de dados com seus respectivos significados:
+
+    *MAT_ALU_MATRICULA: Matr√≠cula aluno (anonimizado)
+    
+    *MAT_TUR_DIS_DISCIPLINA: C√≥digo Disciplina
+    
+    *disciplina: Nome Disciplina
+    
+    *MAT_TUR_ANO: Ano da matr√≠cula
+    
+    *MAT_MEDIA_FINAL: M√©dia obtida na disciplina
+    
+    *EVADIU: Vari√°vel-alvo que indica se o aluno evadiu ou n√£o ao t√©rmino do per√≠odo.
+
+
 
 ```{r, message=FALSE, warning=FALSE}
 # Importando os dados
 treino <- read.csv('treino_classificacao.csv',header=T,na.strings=c(""))
 
-# Criando um data frame para a ocorrÍncia de evasıes por ano
+# Criando um data frame para a ocorr√™ncia de evas√µes por ano
 ano_subset <- subset(treino,select=c(1,4,7))
 colnames(ano_subset) <- c("matr", "ano", "evasao")
 
-#Substituimos o valor booleano por um numÈrico
+#Substituimos o valor booleano por um num√©rico
 library(plyr)
 ano_subset$evasao <- as.character(ano_subset$evasao)
 ano_subset$evasao <- revalue(ano_subset$evasao, c("FALSE"="0"))
 ano_subset$evasao <- revalue(ano_subset$evasao, c("TRUE"="1"))
 
-#Removemos valores repetidos de evas„o do mesmo aluno
+#Removemos valores repetidos de evas√£o do mesmo aluno
 ano_subset <- unique(ano_subset)
 ano_subset <- subset(ano_subset, select=c(2,3))
 ano_subset$evasao <- as.integer(ano_subset$evasao)
 
-#Somamos os valores numÈricos para encontrar quantas evasıes existiram por ano
+#Somamos os valores num√©ricos para encontrar quantas evas√µes existiram por ano
 ano_subset <- ddply(ano_subset, .(ano), summarize, evasao = sum(evasao))
 
 
 barplot(ano_subset$evasao,
-  main = "Õndices de Evas„o Anual",
+  main = "√çndices de Evas√£o Anual",
   xlab = "Ano",
-  ylab = "Evas„o",
+  ylab = "Evas√£o",
   names.arg = ano_subset$ano,
   col = "darkred")
 
 ```
 
-Desse modo podemos observar que o ano que contÈm maior evas„o È o de 2011, com 9 evasıes no total. 
+Desse modo podemos observar que o ano que cont√©m maior evas√£o √© o de 2011, com 9 evas√µes no total. 
 
-### VisualizaÁ„o da DistribuiÁ„o de Classes
+### Visualiza√ß√£o da Distribui√ß√£o de Classes
+
+``` {r, message=FALSE, warning=FALSE}
+
+matr_unicas = treino[!duplicated(treino[,1]),]
+matr_unicas$MAT_MEDIA_FINAL[is.na(mat_unicas$MAT_MEDIA_FINAL)] = 0
+
+distribuicao = group_by(matr_unicas, MAT_TUR_ANO, EVADIU) %>% summarise(count = n())
+colnames(distribuicao) <- c("ano", "evadiu", "contagem")
+
+ggplot(data=distribuicao, aes(x=ano, y=contagem, fill=evadiu)) +
+geom_bar(stat="identity") + scale_fill_manual(values=c('#999999','#E69F00'))
+
+
+``` 
+
+Dessa maneira, podemos concluir que existe um grande desbalanceamento entre as classes, pois a grande maioria dos alunos n√£o evadem o curso. O desbalanceamento pode causar a diminui√ß√£o de acuracia do algoritmo de predi√ß√£o, fazendo com que a performance do algoritmo seja sempre tendenciosa para a classe majorit√°ria, nesse caso a n√£o evas√£o do aluno. Isso ocorre porque os algoritmos assumem que os dados possuem distruibui√ß√£o balanceada e assim consideram que os erros obtidos pelas classes possuem o mesmo custo, o que n√£o se aplica quando h√° desbalanceamento.
+
+### Criando o atributo 
+
+O atributo novo que criaremos ser√° o cra de cada aluno
+
