@@ -1,0 +1,62 @@
+---
+title: "Laboratório 3 Parte 1"
+author: "Luiza Carvalho"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Problema
+
+Essa primeira etapa o objetivo é entender os dados e pensar em atributos que podem ajudar na classificação. Lembre-se que grande parte do sucesso de uma tarefa de predição está na escolha de bons atributos. De forma concreta:
+
+*Gere uma visualização que mostre em que ano houve mais evasões;
+
+*Gere uma visualização da distribuição das classes (número de instâncias de cada classe nos dados);
+
+*Há desbalanceamento das classes (isto é, uma classe tem muito mais instâncias que outra)? Em que proporção? Quais efeitos colaterais o desbalancemanento de classes pode causar no classificador? 
+
+*Crie pelo menos um atributo novo, que não seja a média da disciplina, que você acha que pode ajudar na classificação. 
+
+*Descreva-o e diga por que você acha que pode ser uma boa ideia usá-lo;
+Compare visualmente a distribuição desse atributo em cada classe (e.g. usando boxplots): elas parecem ser diferentes? O que ajuda mais o classificador, atributos que tem distribuições de valores diferentes entre as classes ou distribuições parecidas? Por que?
+
+
+### Gerando Visualização das evasões
+
+```{r, message=FALSE, warning=FALSE}
+# Importando os dados
+treino <- read.csv('treino_classificacao.csv',header=T,na.strings=c(""))
+
+# Criando um data frame para a ocorrência de evasões por ano
+ano_subset <- subset(treino,select=c(1,4,7))
+colnames(ano_subset) <- c("matr", "ano", "evasao")
+
+#Substituimos o valor booleano por um numérico
+library(plyr)
+ano_subset$evasao <- as.character(ano_subset$evasao)
+ano_subset$evasao <- revalue(ano_subset$evasao, c("FALSE"="0"))
+ano_subset$evasao <- revalue(ano_subset$evasao, c("TRUE"="1"))
+
+#Removemos valores repetidos de evasão do mesmo aluno
+ano_subset <- unique(ano_subset)
+ano_subset <- subset(ano_subset, select=c(2,3))
+ano_subset$evasao <- as.integer(ano_subset$evasao)
+
+#Somamos os valores numéricos para encontrar quantas evasões existiram por ano
+ano_subset <- ddply(ano_subset, .(ano), summarize, evasao = sum(evasao))
+
+
+barplot(ano_subset$evasao,
+  main = "Índices de Evasão Anual",
+  xlab = "Ano",
+  ylab = "Evasão",
+  names.arg = ano_subset$ano,
+  col = "darkred")
+
+```
+
+Desse modo podemos observar que o ano que contém maior evasão é o de 2011, com 9 evasões no total. 
+
+### Visualização da Distribuição de Classes
