@@ -39,11 +39,13 @@ Temos as seguintes colunas em nossa base de dados com seus respectivos significa
     
     *EVADIU: Variável-alvo que indica se o aluno evadiu ou não ao término do período.
 
-
+Iremos alterar os nomes das colunas para tornar a leitura e codificação mais simples. Após isso iremos achar a quantidade de alunos que evadiram o curso para cada ano.
 
 ```{r, message=FALSE, warning=FALSE}
 # Importando os dados
-treino <- read.csv('treino_classificacao.csv',header=T,na.strings=c(""))
+treino <- read.csv('treino_classificacao.csv')
+names(treino) <- c("matricula", "cod_disciplina", "disciplina", "ano", "periodo", "media", "evadiu")
+
 
 # Criando um data frame para a ocorrência de evasões por ano
 ano_subset <- subset(treino,select=c(1,4,7))
@@ -77,12 +79,15 @@ Desse modo podemos observar que o ano que contém maior evasão é o de 2011, co
 
 ### Visualização da Distribuição de Classes
 
-``` {r, message=FALSE, warning=FALSE}
+```{r , message=FALSE, warning=FALSE}
+
+library(dplyr)
+library(ggplot2)
 
 matr_unicas = treino[!duplicated(treino[,1]),]
-matr_unicas$MAT_MEDIA_FINAL[is.na(mat_unicas$MAT_MEDIA_FINAL)] = 0
+matr_unicas$media[is.na(matr_unicas$media)] = 0
 
-distribuicao = group_by(matr_unicas, MAT_TUR_ANO, EVADIU) %>% summarise(count = n())
+distribuicao = group_by(matr_unicas, ano, evadiu) %>% summarise(count = n())
 colnames(distribuicao) <- c("ano", "evadiu", "contagem")
 
 ggplot(data=distribuicao, aes(x=ano, y=contagem, fill=evadiu)) +
@@ -95,5 +100,58 @@ Dessa maneira, podemos concluir que existe um grande desbalanceamento entre as c
 
 ### Criando o atributo 
 
-O atributo novo que criaremos será o cra de cada aluno
+O atributo novo que criaremos será o número de reprovações do aluno, seria interessante verificar o quanto a quantidade de reprovações logo no primeiro semestre do curso afeta a probabilidade de um aluno evadir. Isso foi feito verificando quantos alunos obtiveram média menor do que 5. 
 
+```{r, message=FALSE, warning=FALSE}
+
+reprovacoes <- function(medias) {
+  temp <- medias[medias < 5]
+  return(length(temp))
+}
+
+treino <- treino %>%
+  group_by(matricula) %>%
+  mutate(num_reprovacoes = reprovacoes(medias = media))
+
+evadiu.false <- treino %>%
+  ungroup() %>%
+  filter(evadiu == FALSE) %>%
+  select(matricula, num_reprovacoes) %>%
+  group_by(matricula, num_reprovacoes) %>%
+  unique() %>%
+  ungroup() %>%
+  select(num_reprovacoes) %>%
+  table()
+
+evadiu.true <- treino %>%
+  ungroup() %>%
+  filter(evadiu == TRUE) %>%
+  select(matricula, num_reprovacoes) %>%
+  group_by(matricula, num_reprovacoes) %>%
+  unique() %>%
+  ungroup() %>%
+  select(num_reprovacoes) %>%
+  table()
+
+
+evadiu.false <- as.data.frame(evadiu.false)
+evadiu.true <- as.data.frame(evadiu.true)
+
+names(evadiu.false) <- c("num_reprovacoes", "frequencia.false")
+names(evadiu.true) <- c("num_reprovacoes", "frequencia.true")
+
+reprovacoes <- full_join(evadiu.true, evadiu.false, by = "num_reprovacoes")
+
+ggplot(data = reprovacoes, aes(x = num_reprovacoes, y = frequencia.false)) +
+  geom_bar(stat = "identity", fill="#43aa83", colour="#43aa83") +
+    labs(title = "Frequencia das reprovações para evadiu == FALSE",
+       x = "número de reprovacoes", y = "número de alunos")
+
+ggplot(data = reprovacoes, aes(x = num_reprovacoes, y = frequencia.true)) +
+  geom_bar(stat = "identity", fill="#43aa83", colour="#43aa83") +
+  labs(title = "Frequencia das reprovações para evadiu == TRUE",
+       x = "número de reprovacoes", y = "número de alunos")
+
+```
+
+Podemos observar que o número de reprovações se encontra bem distribuido quando lidamos com os alunos que evadiram do curso, porém ele se concentra entre 0 e 2 quando lidamos com os alunos que não evadiram. Portanto temos que o atributo criado possui distribuições diferentes para as classes, esse tipo de distribuição ajuda mais o classificador, pois ele determina comportamentos diferentes para cada variável resposta, assim fazendo com que fique mais fácil de identificar quando cada uma ocorrerá.
