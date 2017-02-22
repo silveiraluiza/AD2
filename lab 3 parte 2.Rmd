@@ -1,0 +1,78 @@
+---
+title: "Lab 3 Parte 2"
+author: "Luiza Carvalho"
+date: "22 de fevereiro de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Essa etapa você vai aplicar os algoritmos de classificação vistos até agora para prever evasão de alunos no curso de computação.
+
+O cenário é o seguinte: o(a) aluno(a) cursou o primeiro período inteiro e queremos prever se ele(a) se matriculará ou não no segundo período. Se ele(a) não se matriculou é porque abandonou o curso ou solicitou desligamento. De forma mais específica:
+
+  1. Separe os dados em treino e teste;
+  2. Use como atributos as médias das disciplinas mais o atributo que você criou na parte 1 (fique a vontade para criar mais atributos);
+  3. Treine modelos de regressão logística;
+  4. Treine modelos de árvore de decisão;
+  5. Interprete os coeficientes da regressão. Quais atributos parecem ser mais importantes?;
+  6. Reporte acurácia, precision e recall no treino e teste. Como você avalia os resultados? Justifique sua resposta.
+
+Note que para os passos acima não é necessário usar validação cruzada.
+
+7.  Controle overfitting usando validação-cruzada (ridge e lasso na regressão logística e condições de "early stopping" nas árvores de decisão, por exemplo, profundidade da árvore);
+8. Reporte acurácia, precision e recall da validação-cruzada e teste (para os melhores modelos);
+9. Aplique o melhor modelo a você mesmo(a) usando seu histórico e reporte a predição e resultado.
+
+Primeiro iremos importar os dados e adicionar o atributo a tabela de dados.
+```{r, message=FALSE, warning=FALSE}
+
+library(dplyr)
+library(reshape2)
+
+# Importando os dados
+dados <- read.csv('treino_classificacao_v2.csv')
+names(dados) <- c("matricula", "cod_disciplina", "disciplina", "ano", "periodo", "media", "evadiu")
+
+# Substituindo NAs por média
+
+# Criando o atributo
+reprovacoes <- function(medias) {
+  temp <- medias[medias < 5]
+  return(length(temp))
+}
+
+dados <- dados %>%
+  group_by(matricula) %>%
+  mutate(num_reprovacoes = reprovacoes(medias = media))
+
+# Alterando a formatação dos dados
+
+dados <- dados %>%
+  group_by(matricula, disciplina) %>%
+  filter(media == max(media))%>%
+  ungroup() %>%
+  select(matricula, disciplina, media, evadiu, num_reprovacoes, ano) %>%
+  mutate(disciplina = as.factor(gsub(" ", ".", disciplina))) %>%
+  dcast(matricula + evadiu + num_reprovacoes + ano ~disciplina, value.var = "media") 
+
+
+ colnames(dados) <- c("matricula", "evadiu", "num_reprovacoes", "ano", "Vetorial", "C1", "IC", "LP1", "LPT", "P1")
+
+```
+
+## Separando os dados entre treino e teste
+
+```{r, message=FALSE, warning=FALSE}
+
+# Criando treino e teste
+
+treino <- dados %>% filter((ano >= 2009) & (ano <= 2014))
+
+teste <- dados %>% filter(ano > 2014)
+
+
+```
+
