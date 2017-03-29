@@ -28,38 +28,24 @@ O que deve ser entregue:
 - Porcentagem dos exemplos de teste que não tiveram predições (e.g. não houve vizinhos ou os vizinhos não cursaram as disciplinas-alvo) 
 
 ```{r, message=FALSE, warning=FALSE}
-
 library("recommenderlab")
 library(dplyr)
-
 # Importando os dados
-
 data <- read.csv('lab4_part1_data.csv')
-
 names(data) <- c("matricula", "ano", "periodo", "AL", "AV", "C1", "C2", "ES", "EDA", 
-              "FC", "FM", "GI", "IC", "LEDA", "LOAC", "LP1", "LP2", "LPT", "LM",
-              "MD", "ME", "OAC", "PLP", "PE", "P1", "P2", "SI1", "TC", "TG")
-
+              "FC", "FM", "GI", "IC", "LEDA", "LOAC", "LP1", "LP2", "LPT", "LM",
+              "MD", "ME", "OAC", "PLP", "PE", "P1", "P2", "SI1", "TC", "TG")
 # Para o treino temos que ter alunos que cursaram o quarto período até 2015.2, assim somente excluindo os alunos ingressantes em 2014.2, para o teste só queremos alunos que cursarão o quarto período em 2016.2, por isso só selecionaremos alunos do 2014.2
-
 teste <- subset(data, ano == 2014)
 teste <- subset(teste, periodo  == 2)
-
 treino <- setdiff(data, teste)
-
 treino <- treino[, -c(2, 3)]
-
 # Criar matriz de afinidade
-
 affinity.matrix.treino <- as(treino,"realRatingMatrix")
-
 # Creation of the model - U(ser) B(ased) C(ollaborative) F(iltering)
 Rec.model<-Recommender(affinity.matrix.treino[1:1115], method = "UBCF")
-
 # recommended top 5 items for user u15348
 recommended.items.u15348 <- predict(Rec.model, affinity.matrix.treino["c7afe99822c722dc8540ad71c4606a50",], n=5)
 # to display them
 as(recommended.items.u15348, "list")
-
-
 ```
