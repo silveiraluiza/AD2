@@ -27,9 +27,13 @@ O que deve ser entregue:
 - RMSE calculado no teste.
 - Porcentagem dos exemplos de teste que não tiveram predições (e.g. não houve vizinhos ou os vizinhos não cursaram as disciplinas-alvo) 
 
+## Importação de Dados e uso de Bibliotecas
+
+A biblioteca recommenderlab foi escolhida para o auxílio na predição
+
 ```{r, message=FALSE, warning=FALSE}
 
-library("recommenderlab")
+library(recommenderlab)
 library(dplyr)
 
 # Importando os dados
@@ -40,28 +44,57 @@ names(data) <- c("matricula", "ano", "periodo", "AL", "AV", "C1", "C2", "ES", "E
               "FC", "FM", "GI", "IC", "LEDA", "LOAC", "LP1", "LP2", "LPT", "LM",
               "MD", "ME", "OAC", "PLP", "PE", "P1", "P2", "SI1", "TC", "TG")
 
-# Para o treino temos que ter alunos que cursaram o quarto período até 2015.2, assim somente excluindo os alunos ingressantes em 2014.2, para o teste só queremos alunos que cursarão o quarto período em 2016.2, por isso só selecionaremos alunos do 2014.2
+```
 
-teste <- data %>% filter(ano == 2014 & periodo == 2)
+## Treino e Teste
 
-treino <- setdiff(data, teste)
+Mudamos os dados de treino e teste para que a predição se tornasse mais precisa, pois para realizar o cálculo do RMSE haveria necessidade de omitir os NAs, assim fazendo com que o data frame de teste apresentasse apenas 5 linhas. Dessa maneira selecionamos alunos que cursaram o quarto período até 2013.1 para o treino, e o restante foi selecionado para o teste.
 
-treino <- treino %>% select(matricula, AL, AV, C1, C2, ES, EDA, 
+```{r, message=FALSE, warning=FALSE}
+
+teste.real <- data %>% filter(ano >= 2013)
+treino <- setdiff(data, teste.real)
+
+teste.real <- na.omit(teste.real)
+
+# Criando um data frame de teste com as disciplinas do quarto período sem nota para poder prevê-las
+
+teste.comna <-  teste.real %>% mutate(OAC = NA, LOAC = NA, PLP = NA, ME = NA, LM = NA, SI1 = NA, ES = NA)
+
+# Removendo colunas irrelevantes
+
+treino <- treino %>% select(AL, AV, C1, C2, ES, EDA, 
               FC, FM, GI, IC, LEDA, LOAC, LP1, LP2, LPT, LM,
               MD, ME, OAC, PLP, PE, P1, P2, SI1, TC, TG)
 
+teste.real <- teste.real %>% select(AL, AV, C1, C2, ES, EDA, 
+              FC, FM, GI, IC, LEDA, LOAC, LP1, LP2, LPT, LM,
+              MD, ME, OAC, PLP, PE, P1, P2, SI1, TC, TG)
 
-# Criar matriz de afinidade
+teste.comna <- teste.comna %>% select(AL, AV, C1, C2, ES, EDA, 
+              FC, FM, GI, IC, LEDA, LOAC, LP1, LP2, LPT, LM,
+              MD, ME, OAC, PLP, PE, P1, P2, SI1, TC, TG)
 
-affinity.matrix.treino <- as(treino,"realRatingMatrix")
+# Criar matrizes de afinidade
 
-# Creation of the model - U(ser) B(ased) C(ollaborative) F(iltering)
-Rec.model<-Recommender(affinity.matrix.treino[1:1115], method = "UBCF")
+affinity.matrix.treino <- as(as.matrix(treino),"realRatingMatrix")
+affinity.matrix.teste.real <- as(as.matrix(teste.real),"realRatingMatrix")
 
-# recommended top 5 items for user u15348
-recommended.items.u15348 <- predict(Rec.model, affinity.matrix.treino["c7afe99822c722dc8540ad71c4606a50",], n=5)
-# to display them
-as(recommended.items.u15348, "list")
+affinity.matrix.teste.comna <- as(as.matrix(teste.comna),"realRatingMatrix")
 
+# Criação do modelo com os dados de treino - U(ser) B(ased) C(ollaborative) F(iltering)
+Rec.model<-Recommender(affinity.matrix.treino[1:938], method = "UBCF")
 
+# Predição de notas com os dados teste
+recommendation <- as.data.frame(as(predict(Rec.model, affinity.matrix.teste.comna,type="ratings"), 'matrix')) 
+
+# Calculando o erro
+
+teste.real.bind <- rbind(data.frame(NOTA = teste.real$OAC), data.frame(NOTA = teste.real$LOAC), data.frame(NOTA = teste.real$PLP), data.frame( NOTA = teste.real$ME), data.frame( NOTA = teste.real$LM), data.frame( NOTA = teste.real$SI1), data.frame( NOTA = teste.real$ES))
+
+teste.recommendation.bind <- rbind(data.frame(NOTA_E = recommendation$OAC), data.frame(NOTA_E = recommendation$LOAC), data.frame(NOTA_E = recommendation$PLP), data.frame( NOTA_E = recommendation$ME), data.frame( NOTA_E = recommendation$LM), data.frame( NOTA_E = recommendation$SI1), data.frame( NOTA_E = recommendation$ES))
+
+total <- data.frame(cbind(teste.real.bind$NOTA, teste.recommendation.bind$NOTA_E)) 
+
+RMSE(total$X1, total$X2)
 ```
