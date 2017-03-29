@@ -1,0 +1,65 @@
+---
+title: "Lab 4"
+author: "Luiza Carvalho"
+date: "23 de março de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Problema
+
+Este problema tem por objetivo exercitar os conceitos sobre sistema de recomendação vistos em sala. O cenário de recomendação é o seguinte:
+
+Um aluno (e.g. do quarto período relativo) realiza sua matrícula. Nesse momento, o sistema realiza uma predição das notas que o aluno se matriculou.
+
+A ideia é usar filtragem colaborativa baseada no usuário para:
+
+1. Encontrar os alunos mais similares, em termos de disciplinas cursadas e notas tiradas nessas disciplinas, aos usuários-alvo da recomendação;
+2. A partir desses vizinhos realizar as predições de notas das disciplinas que os usuários-alvo se matricularam.
+
+Os dados foram particionados em treino e teste da seguinte forma: Para o treino, selecionamos os alunos que cursaram o quarto período até 2015.2, e para o teste, os alunos que cursaram o quarto período em 2016.1. Para efeitos de simulação, você assumirá que esses alunos cursaram três semestres e se matricularam no quarto. Sua tarefa é gerar predições para essas disciplinas matriculadas no quarto período. Use o RMSE para avaliar a qualidade das predições.
+
+O que deve ser entregue:
+
+- Relatório (de preferência HTML) explicando como a tarefa foi feita (e.g. markdown se feito do R).
+- RMSE calculado no teste.
+- Porcentagem dos exemplos de teste que não tiveram predições (e.g. não houve vizinhos ou os vizinhos não cursaram as disciplinas-alvo) 
+
+```{r, message=FALSE, warning=FALSE}
+
+library("recommenderlab")
+library(dplyr)
+
+# Importando os dados
+
+data <- read.csv('lab4_part1_data.csv')
+
+names(data) <- c("matricula", "ano", "periodo", "AL", "AV", "C1", "C2", "ES", "EDA", 
+              "FC", "FM", "GI", "IC", "LEDA", "LOAC", "LP1", "LP2", "LPT", "LM",
+              "MD", "ME", "OAC", "PLP", "PE", "P1", "P2", "SI1", "TC", "TG")
+
+# Para o treino temos que ter alunos que cursaram o quarto período até 2015.2, assim somente excluindo os alunos ingressantes em 2014.2, para o teste só queremos alunos que cursarão o quarto período em 2016.2, por isso só selecionaremos alunos do 2014.2
+
+teste <- subset(data, ano == 2014)
+teste <- subset(teste, periodo  == 2)
+
+treino <- setdiff(data, teste)
+
+treino <- treino[, -c(2, 3)]
+
+# Criar matriz de afinidade
+
+affinity.matrix.treino <- as(treino,"realRatingMatrix")
+
+# Creation of the model - U(ser) B(ased) C(ollaborative) F(iltering)
+Rec.model<-Recommender(affinity.matrix.treino[1:1115], method = "UBCF")
+
+# recommended top 5 items for user u15348
+recommended.items.u15348 <- predict(Rec.model, affinity.matrix.treino["c7afe99822c722dc8540ad71c4606a50",], n=5)
+# to display them
+as(recommended.items.u15348, "list")
+
+
+```
