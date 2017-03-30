@@ -75,7 +75,14 @@ teste.comna <- teste.comna %>% select(AL, AV, C1, C2, ES, EDA,
               FC, FM, GI, IC, LEDA, LOAC, LP1, LP2, LPT, LM,
               MD, ME, OAC, PLP, PE, P1, P2, SI1, TC, TG)
 
-# Criar matrizes de afinidade
+```
+
+## Predição
+
+Agora as matrizes de afinidade serão criadas para serem utilizadas no modelo de recomendação e predição de notas com o recommenderlab. Foi criada uma outra tabela de teste, com as disciplinas do quarto semestre com as notas todas setadas como NA (para que o modelo possa prevê-las). Após prever as notas foi comparado o resultado com o teste original, que possui todas as notas em todas as disciplinas. O modelo conseguiu prever as notas de todos os alunos.
+
+```{r, message=FALSE, warning=FALSE}
+# Criando matrizes de afinidade
 
 affinity.matrix.treino <- as(as.matrix(treino),"realRatingMatrix")
 affinity.matrix.teste.real <- as(as.matrix(teste.real),"realRatingMatrix")
@@ -88,6 +95,10 @@ Rec.model<-Recommender(affinity.matrix.treino[1:938], method = "UBCF")
 # Predição de notas com os dados teste
 recommendation <- as.data.frame(as(predict(Rec.model, affinity.matrix.teste.comna,type="ratings"), 'matrix')) 
 
+#Comparando as notas preditas com as reais
+head(recommendation)
+head(teste.real)
+
 # Calculando o erro
 
 teste.real.bind <- rbind(data.frame(NOTA = teste.real$OAC), data.frame(NOTA = teste.real$LOAC), data.frame(NOTA = teste.real$PLP), data.frame( NOTA = teste.real$ME), data.frame( NOTA = teste.real$LM), data.frame( NOTA = teste.real$SI1), data.frame( NOTA = teste.real$ES))
@@ -96,5 +107,8 @@ teste.recommendation.bind <- rbind(data.frame(NOTA_E = recommendation$OAC), data
 
 total <- data.frame(cbind(teste.real.bind$NOTA, teste.recommendation.bind$NOTA_E)) 
 
-RMSE(total$X1, total$X2)
+rmse1 <- RMSE(total$X1, total$X2)
+
+#Valor do RMSE obtido
+rmse1
 ```
